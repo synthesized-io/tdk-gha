@@ -12,7 +12,7 @@ See [action.yml](action.yml). Notes:
 
 ### Masking a database
 ```yaml
-uses: synthesized-io/run-tdk-gha@v1
+uses: synthesized-io/tdk-gha@v1
 with:
   input_url: jdbc:yourdb://input-db-host:1234
   input_username: dbuser
@@ -28,7 +28,7 @@ with:
 
 ### Generating a database
 ```yaml
-uses: synthesized-io/run-tdk-gha@v1
+uses: synthesized-io/tdk-gha@v1
 with:
   input_url: jdbc:yourdb://input-db-host:1234
   input_username: dbuser
