@@ -1,0 +1,41 @@
+name: Run Synthesized TDK
+description: Runs a transformation with Synthesized TDK
+
+branding:
+  color: blue
+  icon: database
+
+inputs:
+  input_url:
+    description: JDBC URL to the input database
+    required: true
+  input_password:
+    description: Input database password
+    required: false
+  input_username:
+    description: Input database username
+    required: true
+  output_url:
+    required: true
+    description: JDBC URL to the output database
+  output_username:
+    description: Output database username
+    required: true
+  output_password:
+    description: Output database password
+    required: false
+  user_config:
+    description: TDK user config in YAML format
+    required: false
+
+runs:
+  using: docker
+  image: docker://ghcr.io/synthesized-io/tdk-cli:master
+  env:
+    SYNTHESIZED_INPUT_PASSWORD: ${{ inputs.input_password }}
+    SYNTHESIZED_INPUT_USERNAME: ${{ inputs.input_username }}
+    SYNTHESIZED_INPUT_URL: ${{ inputs.input_url }}
+    SYNTHESIZED_OUTPUT_PASSWORD: ${{ inputs.output_password }}
+    SYNTHESIZED_OUTPUT_USERNAME: ${{ inputs.output_username }}
+    SYNTHESIZED_OUTPUT_URL: ${{ inputs.output_url }}
+    SYNTHESIZED_USERCONFIG: ${{ inputs.user_config }}

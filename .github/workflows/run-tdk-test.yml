@@ -1,0 +1,95 @@
+name: Run TDK action test
+on: push
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run-tdk-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Prepare input data
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -p ${{ job.services.input-db.ports['5432'] }} -U postgres -a -f src/test/sql/data.sql
+
+      - name: "[TDK] masking"
+        uses: ./
+        with:
+          input_url: jdbc:postgresql://input-db:5432/
+          input_username: postgres
+          input_password: postgres
+          output_url: jdbc:postgresql://output-db:5432/
+          output_username: postgres
+          output_password: postgres
+          user_config: |
+            default_config:
+              mode: MASKING
+            schema_creation_mode: DROP_AND_CREATE
+
+      - name: "[TDK] masking output assertion"
+        env:
+          PGPASSWORD: postgres
+        run: |
+          OUTPUT_COUNT="$(psql -h localhost -p ${{ job.services.output-db.ports['5432'] }} -U postgres --csv -t -c 'SELECT COUNT(*) FROM public.customer')"
+          if [[ $OUTPUT_COUNT -ne 3 ]]
+          then
+            echo "::error::Expected 3 output records after masking, got $OUTPUT_COUNT"
+            exit 1
+          fi
+
+      - name: "[TDK] generation"
+        uses: ./
+        env:
+          PGPASSWORD: postgres
+        with:
+          input_url: jdbc:postgresql://input-db:5432/
+          input_username: postgres
+          input_password: postgres
+          output_url: jdbc:postgresql://output-db:5432/
+          output_username: postgres
+          output_password: postgres
+          user_config: |
+            default_config:
+              mode: GENERATION
+            schema_creation_mode: DROP_AND_CREATE
+
+      - name: "[TDK] generation output assertion"
+        env:
+          PGPASSWORD: postgres
+        run: |
+          OUTPUT_COUNT="$(psql -h localhost -p ${{ job.services.output-db.ports['5432'] }} -U postgres --csv -t -c 'SELECT COUNT(*) FROM public.customer')"
+          if [[ $OUTPUT_COUNT -ne 3 ]]
+          then
+            echo "::error::Expected 3 output records after generation, got $OUTPUT_COUNT"
+            exit 1
+          fi
+
+    services:
+      input-db:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 5
+      output-db:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 5
