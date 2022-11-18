@@ -1,4 +1,4 @@
-# run-tdk
+# Run Synthesized TDK
 Runs free version of [Synthesized TDK](https://docs.synthesized.io/tdk/latest/) as part of GitHub Actions workflows.
 
 ## Usage
@@ -8,7 +8,12 @@ See [action.yml](action.yml). Notes:
 - For transient databases with their life span limited to a single workflow run, it is convenient to
   use [service containers](https://docs.github.com/en/actions/using-containerized-services/about-service-containers).
   For examples of how this can be done, refer to [a test workflow provided in this repository](.github/workflows/run-tdk-test.yml).
-  > :point_up: Note that in your workflows you will want to replace the job setting `uses: ./` with `uses: synthesized-io/run-tdk-gha@<version>`
+
+  > :point_up: Note that in your workflows you will need to replace the job setting `uses: ./` with `uses: synthesized-io/tdk-gha@<version>`
+
+- For an exhaustive description of configuration syntax and available settings, please refer to the [official TDK documentation](https://docs.synthesized.io/tdk/latest/).
+- You can find out which features are available in the free version of TDK and which are not from the
+  [comparison table](https://docs.synthesized.io/tdk/latest/#_free_vs_paid_versions).
 
 ### Masking a database
 ```yaml
