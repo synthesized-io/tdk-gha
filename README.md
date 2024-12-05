@@ -1,4 +1,4 @@
-# Run Synthesized TDK
+# Run Synthesized TDK Action
 Runs free version of [Synthesized TDK](https://docs.synthesized.io/tdk/latest/) as part of GitHub Actions workflows.
 
 ## Usage
